@@ -1,6 +1,6 @@
 # Kandara Backend
 
-This is the backend service for the Kandara app. It provides a simple Express API for managing car data using local file storage instead of Prisma.
+Ini adalah layanan backend untuk aplikasi Kandara. Layanan ini menyediakan API Express yang sederhana untuk mengelola data kendaraan menggunakan penyimpanan file lokal.
 
 ## Requirements
 
@@ -9,14 +9,14 @@ This is the backend service for the Kandara app. It provides a simple Express AP
 
 ## Setup
 
-1. Open a terminal in `kandara-be`.
-2. Install dependencies:
+1. Buka terminal di `kandara-be`.
+2. Instal dependensi:
 
 ```bash
 npm install
 ```
 
-3. If the project does not already have runtime dependencies installed, also install:
+3. Jika proyek tersebut belum memiliki dependensi runtime yang terpasang, pasang juga:
 
 ```bash
 npm install express cors
@@ -25,13 +25,13 @@ npm install -D typescript ts-node @types/node @types/express @types/cors
 
 ## Running the backend
 
-The backend is written in TypeScript. You can start it using `tsx`:
+Bagian backend ditulis dalam TypeScript. Anda dapat menjalankannya menggunakan `tsx`:
 
 ```bash
 npx tsx watch src/index.ts
 ```
 
-If you prefer to compile first and run with Node:
+Jika Anda lebih suka mengompilasi terlebih dahulu dan menjalankannya dengan Node:
 
 ```bash
 npx tsc
@@ -40,15 +40,15 @@ node dist/index.js
 
 ## Storage
 
-The backend stores car records in a local JSON file at:
+Sistem backend menyimpan data kendaraan dalam berkas JSON lokal di:
 
 - `kandara-be/data/cars.json`
 
-The file is created automatically when the application first runs.
+Berkas tersebut dibuat secara otomatis saat aplikasi dijalankan untuk pertama kalinya.
 
 ## API Endpoints
 
-The backend exposes the following endpoints under `/api/cars`.
+Backend menyediakan titik akhir berikut di bawah `/api/cars`.
 
 ### Get all cars
 
@@ -76,7 +76,10 @@ Body JSON:
   "brand": "Toyota",
   "production_year": 2021,
   "number_plat": "B 1234 XYZ",
-  "fuel_type": "gasoline"
+  "fuel_type": "Petrol",
+  "odometer": "90000",
+  "last_odometer_service": "90500",
+  "service_interval": "5000"
 }
 ```
 
@@ -84,14 +87,17 @@ Body JSON:
 
 `PUT /api/cars/:id`
 
-Body JSON can include any of the car fields:
+Isi JSON dapat mencakup salah satu dari bidang-bidang mobil berikut:
 
 ```json
 {
   "brand": "Honda",
   "production_year": 2022,
   "number_plat": "B 4321 ABC",
-  "fuel_type": "diesel"
+  "fuel_type": "diesel",
+  "odometer": "90000",
+  "last_odometer_service": "90500",
+  "service_interval": "5000"
 }
 ```
 
@@ -101,7 +107,7 @@ Body JSON can include any of the car fields:
 
 ## Response format
 
-All successful responses are returned in the form:
+Semua respons yang berhasil dikembalikan dalam bentuk:
 
 ```json
 {
@@ -111,7 +117,7 @@ All successful responses are returned in the form:
 }
 ```
 
-Errors are returned like:
+Kesalahan ditampilkan sebagai berikut:
 
 ```json
 {
