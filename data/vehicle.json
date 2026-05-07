@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": 1,
+    "brand": "Tasdas",
+    "production_year": 22222,
+    "number_plat": "11111",
+    "fuel_type": "Petrol",
+    "odometer": 111111111,
+    "last_odometer_service": 1111110,
+    "service_interval": 1111111,
+    "createdAt": "2026-05-07T16:02:57.734Z"
+  }
+]
