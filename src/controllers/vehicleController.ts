@@ -1,16 +1,16 @@
 import type { Request, Response } from "express";
 import {
-  createCar as storageCreateCar,
-  deleteCarById,
-  findCarById,
-  findCarByNumberPlat,
-  getCars,
-  updateCarById,
-  countCars,
+  createVehicle as storageCreateVehicle,
+  deleteVehicleById,
+  findVehicleById,
+  findVehicleByNumberPlat,
+  getVehicles,
+  updateVehicleById,
+  countVehicles,
 } from "../lib/storage.ts";
 import { sendSuccess, sendError } from "../helper/response.ts";
 
-export async function getAllCars(
+export async function getAllVehicles(
   req: Request,
   res: Response
 ): Promise<void> {
@@ -34,13 +34,13 @@ export async function getAllCars(
     const skipNumber = parseInt(skip as string, 10) || 0;
     const takeNumber = parseInt(take as string, 10) || 10;
 
-    const [cars, total] = await Promise.all([
-      getCars(filters, skipNumber, takeNumber),
-      countCars(filters),
+    const [vehicles, total] = await Promise.all([
+      getVehicles(filters, skipNumber, takeNumber),
+      countVehicles(filters),
     ]);
 
     sendSuccess(res, {
-      cars,
+      vehicles,
       pagination: {
         total,
         skip: skipNumber,
@@ -54,9 +54,9 @@ export async function getAllCars(
 }
 
 /**
- * Get car by ID
+ * Get vehicle by ID
  */
-export async function getCarById(
+export async function getVehicleById(
   req: Request,
   res: Response
 ): Promise<void> {
@@ -64,28 +64,28 @@ export async function getCarById(
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     if (!id || isNaN(Number(id))) {
-      sendError(res, "Invalid car ID", 400);
+      sendError(res, "Invalid vehicle ID", 400);
       return;
     }
 
-    const car = await findCarById(parseInt(id, 10));
+    const vehicle = await findVehicleById(parseInt(id, 10));
 
-    if (!car) {
-      sendError(res, "Car not found", 404);
+    if (!vehicle) {
+      sendError(res, "Vehicle not found", 404);
       return;
     }
 
-    sendSuccess(res, car);
+    sendSuccess(res, vehicle);
   } catch (error: any) {
     sendError(res, error, 500);
   }
 }
 
 /**
- * Create new car
+ * Create new vehicle
  * Required fields: brand, production_year, number_plat, fuel_type
  */
-export async function createCar(
+export async function createVehicle(
   req: Request,
   res: Response
 ): Promise<void> {
@@ -93,7 +93,7 @@ export async function createCar(
     const { brand, production_year, number_plat, fuel_type } = req.body;
 
     if (!brand || !brand.trim()) {
-      sendError(res, "Car brand is required", 400);
+      sendError(res, "Vehicle brand is required", 400);
       return;
     }
 
@@ -118,30 +118,30 @@ export async function createCar(
       return;
     }
 
-    const existingCar = await findCarByNumberPlat(number_plat.trim());
-    if (existingCar) {
-      sendError(res, "Car number plat already exists", 409);
+    const existingVehicle = await findVehicleByNumberPlat(number_plat.trim());
+    if (existingVehicle) {
+      sendError(res, "Vehicle number plat already exists", 409);
       return;
     }
 
-    const car = await storageCreateCar({
+    const vehicle = await storageCreateVehicle({
       brand: brand.trim(),
       production_year: year,
       number_plat: number_plat.trim(),
       fuel_type: fuel_type.trim(),
     });
 
-    sendSuccess(res, car, "Car created successfully", 201);
+    sendSuccess(res, vehicle, "Vehicle created successfully", 201);
   } catch (error: any) {
     sendError(res, error, 500);
   }
 }
 
 /**
- * Update car
+ * Update vehicle
  * Can update: brand, production_year, number_plat, fuel_type
  */
-export async function updateCar(
+export async function updateVehicle(
   req: Request,
   res: Response
 ): Promise<void> {
@@ -149,13 +149,13 @@ export async function updateCar(
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     if (!id || isNaN(Number(id))) {
-      sendError(res, "Invalid car ID", 400);
+      sendError(res, "Invalid vehicle ID", 400);
       return;
     }
 
-    const existingCar = await findCarById(parseInt(id, 10));
-    if (!existingCar) {
-      sendError(res, "Car not found", 404);
+    const existingVehicle = await findVehicleById(parseInt(id, 10));
+    if (!existingVehicle) {
+      sendError(res, "Vehicle not found", 404);
       return;
     }
 
@@ -164,7 +164,7 @@ export async function updateCar(
 
     if (brand !== undefined) {
       if (!brand.trim()) {
-        sendError(res, "Car brand cannot be empty", 400);
+        sendError(res, "Vehicle brand cannot be empty", 400);
         return;
       }
       updateData.brand = brand.trim();
@@ -181,14 +181,14 @@ export async function updateCar(
 
     if (number_plat !== undefined) {
       if (!number_plat.trim()) {
-        sendError(res, "Car number plat cannot be empty", 400);
+        sendError(res, "Vehicle number plat cannot be empty", 400);
         return;
       }
 
-      if (number_plat.trim() !== existingCar.number_plat) {
-        const existingNumberPlat = await findCarByNumberPlat(number_plat.trim());
+      if (number_plat.trim() !== existingVehicle.number_plat) {
+        const existingNumberPlat = await findVehicleByNumberPlat(number_plat.trim());
         if (existingNumberPlat) {
-          sendError(res, "Car number plat already exists", 409);
+          sendError(res, "Vehicle number plat already exists", 409);
           return;
         }
       }
@@ -203,22 +203,22 @@ export async function updateCar(
       updateData.fuel_type = fuel_type.trim();
     }
 
-    const car = await updateCarById(parseInt(id, 10), updateData);
-    if (!car) {
-      sendError(res, "Car not found", 404);
+    const vehicle = await updateVehicleById(parseInt(id, 10), updateData);
+    if (!vehicle) {
+      sendError(res, "Vehicle not found", 404);
       return;
     }
 
-    sendSuccess(res, car, "Car updated successfully");
+    sendSuccess(res, vehicle, "Vehicle updated successfully");
   } catch (error: any) {
     sendError(res, error, 500);
   }
 }
 
 /**
- * Delete car
+ * Delete vehicle
  */
-export async function deleteCar(
+export async function deleteVehicle(
   req: Request,
   res: Response
 ): Promise<void> {
@@ -226,17 +226,17 @@ export async function deleteCar(
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     if (!id || isNaN(Number(id))) {
-      sendError(res, "Invalid car ID", 400);
+      sendError(res, "Invalid vehicle ID", 400);
       return;
     }
 
-    const deleted = await deleteCarById(parseInt(id, 10));
+    const deleted = await deleteVehicleById(parseInt(id, 10));
     if (!deleted) {
-      sendError(res, "Car not found", 404);
+      sendError(res, "Vehicle not found", 404);
       return;
     }
 
-    sendSuccess(res, null, "Car deleted successfully");
+    sendSuccess(res, null, "Vehicle deleted successfully");
   } catch (error: any) {
     sendError(res, error, 500);
   }

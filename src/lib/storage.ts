@@ -1,16 +1,24 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-export interface Car {
+enum FuelType {
+  DIESEL = "diesel",
+  PETROL = "petrol",
+  HYBRID = "hybrid",
+  ELECTRIC = "electric",
+  CNG = "cng",
+}
+
+export interface Vehicle {
   id: number;
   brand: string;
   production_year: number;
   number_plat: string;
-  fuel_type: string;
+  fuel_type: FuelType;
   createdAt: string;
 }
 
-const dataFilePath = path.join(process.cwd(), "data", "cars.json");
+const dataFilePath = path.join(process.cwd(), "data", "vehicle.json");
 
 async function ensureDataFile(): Promise<void> {
   const dir = path.dirname(dataFilePath);
@@ -23,50 +31,50 @@ async function ensureDataFile(): Promise<void> {
   }
 }
 
-async function loadCars(): Promise<Car[]> {
+async function loadVehicles(): Promise<Vehicle[]> {
   await ensureDataFile();
   const data = await fs.readFile(dataFilePath, "utf8");
   try {
-    const cars = JSON.parse(data);
-    return Array.isArray(cars) ? cars : [];
+    const vehicles = JSON.parse(data);
+    return Array.isArray(vehicles) ? vehicles : [];
   } catch {
     return [];
   }
 }
 
-async function saveCars(cars: Car[]): Promise<void> {
+async function saveVehicles(vehicles: Vehicle[]): Promise<void> {
   await ensureDataFile();
-  await fs.writeFile(dataFilePath, JSON.stringify(cars, null, 2), "utf8");
+  await fs.writeFile(dataFilePath, JSON.stringify(vehicles, null, 2), "utf8");
 }
 
-export async function findCarById(id: number): Promise<Car | undefined> {
-  const cars = await loadCars();
-  return cars.find((car) => car.id === id);
+export async function findVehicleById(id: number): Promise<Vehicle | undefined> {
+  const vehicles = await loadVehicles();
+  return vehicles.find((vehicle) => vehicle.id === id);
 }
 
-export async function findCarByNumberPlat(number_plat: string): Promise<Car | undefined> {
-  const cars = await loadCars();
-  return cars.find((car) => car.number_plat === number_plat);
+export async function findVehicleByNumberPlat(number_plat: string): Promise<Vehicle | undefined> {
+  const vehicles = await loadVehicles();
+  return vehicles.find((vehicle) => vehicle.number_plat === number_plat);
 }
 
-export async function getCars(
+export async function getVehicles(
   filter: { search?: string; production_year?: number } = {},
   skip = 0,
   take = 10
-): Promise<Car[]> {
-  const cars = await loadCars();
+): Promise<Vehicle[]> {
+  const vehicles = await loadVehicles();
 
-  const filtered = cars.filter((car) => {
-    if (filter.production_year !== undefined && car.production_year !== filter.production_year) {
+  const filtered = vehicles.filter((vehicle) => {
+    if (filter.production_year !== undefined && vehicle.production_year !== filter.production_year) {
       return false;
     }
 
     if (filter.search) {
       const search = filter.search.toLowerCase();
       return (
-        car.brand.toLowerCase().includes(search) ||
-        car.number_plat.toLowerCase().includes(search) ||
-        car.fuel_type.toLowerCase().includes(search)
+        vehicle.brand.toLowerCase().includes(search) ||
+        vehicle.number_plat.toLowerCase().includes(search) ||
+        vehicle.fuel_type.toLowerCase().includes(search)
       );
     }
 
@@ -77,20 +85,20 @@ export async function getCars(
   return sorted.slice(skip, skip + take);
 }
 
-export async function countCars(filter: { search?: string; production_year?: number } = {}): Promise<number> {
-  const cars = await loadCars();
+export async function countVehicles(filter: { search?: string; production_year?: number } = {}): Promise<number> {
+  const vehicles = await loadVehicles();
 
-  return cars.filter((car) => {
-    if (filter.production_year !== undefined && car.production_year !== filter.production_year) {
+  return vehicles.filter((vehicle) => {
+    if (filter.production_year !== undefined && vehicle.production_year !== filter.production_year) {
       return false;
     }
 
     if (filter.search) {
       const search = filter.search.toLowerCase();
       return (
-        car.brand.toLowerCase().includes(search) ||
-        car.number_plat.toLowerCase().includes(search) ||
-        car.fuel_type.toLowerCase().includes(search)
+        vehicle.brand.toLowerCase().includes(search) ||
+        vehicle.number_plat.toLowerCase().includes(search) ||
+        vehicle.fuel_type.toLowerCase().includes(search)
       );
     }
 
@@ -98,48 +106,48 @@ export async function countCars(filter: { search?: string; production_year?: num
   }).length;
 }
 
-export async function createCar(data: {
+export async function createVehicle(data: {
   brand: string;
   production_year: number;
   number_plat: string;
   fuel_type: string;
-}): Promise<Car> {
-  const cars = await loadCars();
-  const nextId = cars.length > 0 ? Math.max(...cars.map((car) => car.id)) + 1 : 1;
-  const car: Car = {
+}): Promise<Vehicle> {
+  const vehicles = await loadVehicles();
+  const nextId = vehicles.length > 0 ? Math.max(...vehicles.map((vehicle) => vehicle.id)) + 1 : 1;
+  const vehicle: Vehicle = {
     id: nextId,
     brand: data.brand,
     production_year: data.production_year,
     number_plat: data.number_plat,
-    fuel_type: data.fuel_type,
+    fuel_type: data.fuel_type as FuelType,
     createdAt: new Date().toISOString(),
   };
 
-  cars.push(car);
-  await saveCars(cars);
-  return car;
+  vehicles.push(vehicle);
+  await saveVehicles(vehicles);
+  return vehicle;
 }
 
-export async function updateCarById(id: number, update: Partial<Omit<Car, "id" | "createdAt">>): Promise<Car | undefined> {
-  const cars = await loadCars();
-  const index = cars.findIndex((car) => car.id === id);
+export async function updateVehicleById(id: number, update: Partial<Omit<Vehicle, "id" | "createdAt">>): Promise<Vehicle | undefined> {
+  const vehicles = await loadVehicles();
+  const index = vehicles.findIndex((vehicle) => vehicle.id === id);
   if (index === -1) {
     return undefined;
   }
 
-  cars[index] = { ...cars[index], ...update };
-  await saveCars(cars);
-  return cars[index];
+  vehicles[index] = { ...vehicles[index], ...update };
+  await saveVehicles(vehicles);
+  return vehicles[index];
 }
 
-export async function deleteCarById(id: number): Promise<boolean> {
-  const cars = await loadCars();
-  const index = cars.findIndex((car) => car.id === id);
+export async function deleteVehicleById(id: number): Promise<boolean> {
+  const vehicles = await loadVehicles();
+  const index = vehicles.findIndex((vehicle) => vehicle.id === id);
   if (index === -1) {
     return false;
   }
 
-  cars.splice(index, 1);
-  await saveCars(cars);
+  vehicles.splice(index, 1);
+  await saveVehicles(vehicles);
   return true;
 }
