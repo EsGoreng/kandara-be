@@ -14,6 +14,9 @@ export interface Vehicle {
   production_year: number;
   number_plat: string;
   fuel_type: FuelType;
+  odometer?: number;
+  last_odometer_service?: number;
+  service_interval?: number;
   createdAt: string;
 }
 
@@ -110,6 +113,9 @@ export async function createVehicle(data: {
   production_year: number;
   number_plat: string;
   fuel_type: string;
+  odometer?: number;
+  last_odometer_service?: number;
+  service_interval?: number;
 }): Promise<Vehicle> {
   const vehicles = await loadVehicles();
   const nextId = vehicles.length > 0 ? Math.max(...vehicles.map((vehicle) => vehicle.id)) + 1 : 1;
@@ -119,6 +125,9 @@ export async function createVehicle(data: {
     production_year: data.production_year,
     number_plat: data.number_plat,
     fuel_type: data.fuel_type as FuelType,
+    odometer: data.odometer,
+    last_odometer_service: data.last_odometer_service,
+    service_interval: data.service_interval,
     createdAt: new Date().toISOString(),
   };
 

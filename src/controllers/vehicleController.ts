@@ -90,7 +90,7 @@ export async function createVehicle(
   res: Response
 ): Promise<void> {
   try {
-    const { brand, production_year, number_plat, fuel_type } = req.body;
+    const { brand, production_year, number_plat, fuel_type, odometer, last_odometer_service, service_interval } = req.body;
 
     if (!brand || !brand.trim()) {
       sendError(res, "Vehicle brand is required", 400);
@@ -118,6 +118,33 @@ export async function createVehicle(
       return;
     }
 
+    let odometerValue: number | undefined;
+    if (odometer !== undefined && odometer !== null && odometer !== "") {
+      odometerValue = Number(odometer);
+      if (Number.isNaN(odometerValue) || odometerValue < 0) {
+        sendError(res, "Invalid odometer value", 400);
+        return;
+      }
+    }
+
+    let lastOdometerServiceValue: number | undefined;
+    if (last_odometer_service !== undefined && last_odometer_service !== null && last_odometer_service !== "") {
+      lastOdometerServiceValue = Number(last_odometer_service);
+      if (Number.isNaN(lastOdometerServiceValue) || lastOdometerServiceValue < 0) {
+        sendError(res, "Invalid last odometer service value", 400);
+        return;
+      }
+    }
+
+    let serviceIntervalValue: number | undefined;
+    if (service_interval !== undefined && service_interval !== null && service_interval !== "") {
+      serviceIntervalValue = Number(service_interval);
+      if (Number.isNaN(serviceIntervalValue) || serviceIntervalValue < 0) {
+        sendError(res, "Invalid service interval value", 400);
+        return;
+      }
+    }
+
     const existingVehicle = await findVehicleByNumberPlat(number_plat.trim());
     if (existingVehicle) {
       sendError(res, "Vehicle number plat already exists", 409);
@@ -129,6 +156,9 @@ export async function createVehicle(
       production_year: year,
       number_plat: number_plat.trim(),
       fuel_type: fuel_type.trim(),
+      odometer: odometerValue,
+      last_odometer_service: lastOdometerServiceValue,
+      service_interval: serviceIntervalValue,
     });
 
     sendSuccess(res, vehicle, "Vehicle created successfully", 201);
@@ -159,7 +189,7 @@ export async function updateVehicle(
       return;
     }
 
-    const { brand, production_year, number_plat, fuel_type } = req.body;
+    const { brand, production_year, number_plat, fuel_type, odometer, last_odometer_service, service_interval } = req.body;
     const updateData: any = {};
 
     if (brand !== undefined) {
@@ -201,6 +231,45 @@ export async function updateVehicle(
         return;
       }
       updateData.fuel_type = fuel_type.trim();
+    }
+
+    if (odometer !== undefined) {
+      if (odometer === null || odometer === "") {
+        updateData.odometer = undefined;
+      } else {
+        const odometerValue = Number(odometer);
+        if (Number.isNaN(odometerValue) || odometerValue < 0) {
+          sendError(res, "Invalid odometer value", 400);
+          return;
+        }
+        updateData.odometer = odometerValue;
+      }
+    }
+
+    if (last_odometer_service !== undefined) {
+      if (last_odometer_service === null || last_odometer_service === "") {
+        updateData.last_odometer_service = undefined;
+      } else {
+        const lastOdometerServiceValue = Number(last_odometer_service);
+        if (Number.isNaN(lastOdometerServiceValue) || lastOdometerServiceValue < 0) {
+          sendError(res, "Invalid last odometer service value", 400);
+          return;
+        }
+        updateData.last_odometer_service = lastOdometerServiceValue;
+      }
+    }
+
+    if (service_interval !== undefined) {
+      if (service_interval === null || service_interval === "") {
+        updateData.service_interval = undefined;
+      } else {
+        const serviceIntervalValue = Number(service_interval);
+        if (Number.isNaN(serviceIntervalValue) || serviceIntervalValue < 0) {
+          sendError(res, "Invalid service interval value", 400);
+          return;
+        }
+        updateData.service_interval = serviceIntervalValue;
+      }
     }
 
     const vehicle = await updateVehicleById(parseInt(id, 10), updateData);
