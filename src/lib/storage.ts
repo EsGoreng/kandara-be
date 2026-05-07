@@ -6,7 +6,6 @@ enum FuelType {
   PETROL = "petrol",
   HYBRID = "hybrid",
   ELECTRIC = "electric",
-  CNG = "cng",
 }
 
 export interface Vehicle {
