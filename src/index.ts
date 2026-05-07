@@ -1,5 +1,5 @@
 import express, { type Express, type Request, type Response } from "express";
-import vehicleRoutes from "./routes/vehicleRoutes";
+import vehicleRoutes from "./routes/vehicleRoutes.js";
 import cors from "cors";
 
 const app: Express = express();

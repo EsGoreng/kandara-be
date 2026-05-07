@@ -5,7 +5,7 @@ import {
   createVehicle,
   updateVehicle,
   deleteVehicle,
-} from "../controllers/vehicleController";
+} from "../controllers/vehicleController.js";
 
 const router: Router = express.Router();
 

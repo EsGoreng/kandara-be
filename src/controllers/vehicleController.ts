@@ -8,7 +8,7 @@ import {
   updateVehicleById,
   countVehicles,
 } from "../lib/storage.ts";
-import { sendSuccess, sendError } from "../helper/response.ts";
+import { sendSuccess, sendError } from "../helper/response.js";
 
 export async function getAllVehicles(
   req: Request,
