@@ -54,13 +54,6 @@ Backend menyediakan titik akhir berikut di bawah `/api/cars`.
 
 `GET /api/cars`
 
-Query parameters:
-
-- `search` - filter by `brand`, `number_plat`, or `fuel_type`
-- `production_year` - filter by production year
-- `skip` - pagination offset (default `0`)
-- `take` - number of records to return (default `10`)
-
 ### Get a car by ID
 
 `GET /api/cars/:id`
